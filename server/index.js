@@ -52,6 +52,8 @@ app.use(cookieParser());
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000', 
+  'https://camply-production.up.railway.app',
+  'https://camply-ooin.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -228,6 +230,6 @@ app.put('/api/auth/profile', authMiddleware, async (req, res) => {
   res.json({ user: { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role, avatar: user.avatar } });
 });
 
-app.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API listening on http://0.0.0.0:${PORT}`);
 });

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { apiUrl } from '../config/api'
 
 export type User = {
   id: string
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const refresh = async () => {
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' })
+      const res = await fetch(apiUrl('/api/auth/me'), { credentials: 'include' })
       if (res.ok) {
         const data = await res.json()
         setUser(data.user)
@@ -54,7 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+    await fetch(apiUrl('/api/auth/logout'), { method: 'POST', credentials: 'include' })
     setUser(null)
   }
 
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const formData = new FormData()
     formData.append('avatar', file)
     
-    const res = await fetch('/api/auth/avatar', {
+    const res = await fetch(apiUrl('/api/auth/avatar'), {
       method: 'POST',
       body: formData,
       credentials: 'include'
@@ -74,7 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const updateProfile = async (data: { firstName: string; lastName: string }) => {
-    const res = await fetch('/api/auth/profile', {
+    const res = await fetch(apiUrl('/api/auth/profile'), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
