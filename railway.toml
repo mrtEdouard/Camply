@@ -2,7 +2,7 @@
   builder = "NIXPACKS"
 
 [deploy]
-  startCommand = "npm run start:server"
+  startCommand = "npm run server"
   healthcheckPath = "/api/auth/me"
   healthcheckTimeout = 300
   restartPolicyType = "ON_FAILURE"
