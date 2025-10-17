@@ -54,6 +54,7 @@ const allowedOrigins = [
   'http://localhost:3000', 
   'https://camply-production.up.railway.app',
   'https://camply-ooin.vercel.app',
+  'https://camply-eosin.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
