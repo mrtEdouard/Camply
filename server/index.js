@@ -90,6 +90,9 @@ function requireEquipe(req, res, next) {
   next();
 }
 
+// Health check endpoints pour Railway
+app.get('/', (_, res) => res.json({ status: 'ok', service: 'camplyze-api' }));
+app.get('/health', (_, res) => res.json({ ok: true }));
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 
 app.post('/api/auth/register-collectivite', async (req, res) => {
