@@ -1,73 +1,190 @@
-# React + TypeScript + Vite
+# 🏕️ Camplyze
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Plateforme de gestion moderne pour centres de loisirs et collectivités**
 
-Currently, two official plugins are available:
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue.svg)](https://typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3+-06B6D4.svg)](https://tailwindcss.com/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Fonctionnalités
 
-## React Compiler
+### 🔐 Authentification Multi-Rôles
+- **Collectivités** : Interface d'administration complète
+- **Directeurs** : Gestion d'équipe et séjours
+- **Animateurs** : Suivi des activités
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🎨 Interface Moderne
+- **Design responsive** adaptatif mobile/desktop
+- **Dashboard personnalisés** par rôle
+- **Upload d'avatars** avec preview temps réel
+- **Animations fluides** et feedback utilisateur
 
-## Expanding the ESLint configuration
+### 🛠️ Gestion Complète
+- **Création et gestion d'équipes**
+- **CRUD directeurs/animateurs** 
+- **Système de notifications**
+- **Profils utilisateurs éditables**
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Technologies
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Frontend
+- **React 18** + TypeScript
+- **Vite** (build tool moderne)
+- **Tailwind CSS** (styling utility-first)
+- **React Router** (navigation SPA)
+- **Lucide React** (icônes)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Backend  
+- **Node.js** + Express
+- **Prisma ORM** (base de données)
+- **SQLite** (développement)
+- **JWT** (authentification sécurisée)
+- **Multer** (upload de fichiers)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Sécurité
+- **Cookies httpOnly** (sessions sécurisées)
+- **Hachage bcrypt** (mots de passe)
+- **Middleware d'authentification**
+- **Contrôle d'accès par rôle**
+
+## 📦 Installation
+
+### Prérequis
+- Node.js 18+
+- npm ou yarn
+
+### 1. Cloner le projet
+```bash
+git clone https://github.com/votre-username/camplyze.git
+cd camplyze
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 2. Installer les dépendances
+```bash
+npm install
 ```
+
+### 3. Configuration environnement
+```bash
+# Créer le fichier .env
+echo "DATABASE_URL=\"file:./dev.db\"" > .env
+echo "JWT_SECRET=\"your-super-secret-key\"" >> .env
+```
+
+### 4. Initialiser la base de données
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 5. Lancer l'application
+```bash
+# Terminal 1 : Backend
+npm run server
+
+# Terminal 2 : Frontend  
+npm run dev
+```
+
+L'application sera accessible sur :
+- **Frontend** : http://localhost:5173
+- **API** : http://localhost:4000
+
+## 🎯 Utilisation
+
+### 1. Créer une collectivité
+- Aller sur http://localhost:5173
+- Cliquer "Démarrer gratuitement"
+- Remplir le formulaire d'inscription
+
+### 2. Dashboard administrateur
+- **Profil** : Modifier informations, upload avatar
+- **Équipe** : Créer/gérer directeurs
+- **Statistiques** : Vue d'ensemble globale
+
+### 3. Connexion équipe
+- Utiliser "Se Connecter > Équipe"  
+- Dashboard adapté au rôle (directeur/animateur)
+- Profil éditable avec organisation
+
+## 📱 Responsive Design
+
+L'application est **100% responsive** :
+
+- **Mobile** (375px+) : Layout vertical optimisé
+- **Tablet** (768px+) : Grilles 2 colonnes
+- **Desktop** (1024px+) : Interface complète multi-colonnes
+
+## 🏗️ Architecture
+
+```
+├── src/
+│   ├── components/          # Composants réutilisables
+│   │   ├── ui/             # System design (Avatar, Card, Badge...)
+│   │   └── ...             # Header, Footer, etc.
+│   ├── pages/              # Pages principales
+│   │   ├── auth/           # Pages d'authentification
+│   │   └── dashboards/     # Tableaux de bord
+│   ├── auth/               # Contexte d'authentification
+│   └── ...
+├── server/                 # API Express
+├── prisma/                 # Schéma base de données
+└── uploads/               # Fichiers uploadés (ignoré git)
+```
+
+## 📊 Base de Données
+
+### Modèles Prisma
+
+**Organization** : Collectivités
+- id, name, email, plan, createdAt
+
+**User** : Utilisateurs multi-rôles  
+- id, email, firstName, lastName, role, avatar, organizationId
+
+**Camp** : Séjours (placeholder)
+- id, name, startsAt, endsAt, organizationId
+
+## 🔧 Scripts Disponibles
+
+```bash
+npm run dev          # Démarrer frontend (Vite)
+npm run server       # Démarrer backend (Express) 
+npm run build        # Build production
+npm run lint         # Linter ESLint
+npm run preview      # Preview build production
+```
+
+## 🛡️ Sécurité
+
+- **JWT sécurisés** avec cookies httpOnly
+- **Validation côté serveur** pour toutes les routes
+- **Contrôle d'accès** par rôle utilisateur
+- **Upload sécurisé** avec validation type/taille
+- **Hachage mot de passe** bcrypt
+
+## 🚀 Déploiement
+
+### Production recommandée
+- **Frontend** : Vercel, Netlify
+- **Backend** : Railway, Render, DigitalOcean
+- **Base de données** : PostgreSQL (Supabase, PlanetScale)
+
+### Variables d'environnement production
+```bash
+DATABASE_URL="postgresql://..."
+JWT_SECRET="complex-secret-key-256-bits"
+NODE_ENV="production"
+```
+
+## 🎉 État du Projet
+
+✅ **Système d'authentification** complet et sécurisé  
+✅ **Dashboards** modernes et responsives  
+✅ **Upload d'images** fonctionnel  
+✅ **API REST** complète  
+✅ **Design system** cohérent  
+✅ **Mobile-first** responsive  
+
+**Prêt pour la production !** 🚀

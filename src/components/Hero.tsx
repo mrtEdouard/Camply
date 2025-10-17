@@ -3,129 +3,174 @@ import logo from '../assets/logo.png'
 
 const Hero = () => {
   return (
-    <section className="bg-gradient-to-b from-slate-100 to-slate-50 min-h-[600px] relative overflow-hidden">
+    <section className="relative min-h-[800px] overflow-hidden">
+      {/* Gradient moderne et subtil */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-secondary-50"></div>
       {/* Éléments décoratifs pour donner du style au fond */}
+      {/* Éléments décoratifs modernes */}
       <div className="absolute inset-0">
-        {/* Formes jaunes disposées à droite */}
-        <div className="absolute top-20 right-32 w-32 h-32 bg-camply-yellow rounded-full opacity-80"></div>
-        <div className="absolute bottom-20 right-80 w-24 h-24 bg-camply-yellow rounded-full opacity-60"></div>
-        <div className="absolute top-32 right-20 w-4 h-4 bg-camply-yellow rotate-45"></div>
-        <div className="absolute bottom-32 right-20 w-6 h-6 bg-camply-yellow rotate-45"></div>
+        {/* Formes abstraites fluides */}
+        <div className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-br from-primary-100 to-secondary-100 rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute bottom-40 left-20 w-60 h-60 bg-gradient-to-tr from-accent-100 to-warning-100 rounded-full opacity-25 blur-2xl"></div>
         
-        {/* Petites formes vertes à gauche */}
-        <div className="absolute bottom-10 left-10 w-16 h-16 bg-green-600 rounded-full opacity-40"></div>
-        <div className="absolute top-40 left-32 w-8 h-8 bg-green-600 rounded-full opacity-30"></div>
-        
-        {/* Grille décorative en pointillés */}
-        <svg className="absolute top-48 right-64 w-20 h-20" viewBox="0 0 100 100">
-          <line x1="0" y1="50" x2="100" y2="50" stroke="#FFB300" strokeWidth="2" strokeDasharray="5,5"/>
-          <line x1="50" y1="0" x2="50" y2="100" stroke="#FFB300" strokeWidth="2" strokeDasharray="5,5"/>
-        </svg>
+        {/* Patterns géométriques */}
+        <div className="absolute top-32 right-40 w-3 h-3 bg-primary-400 rounded-full opacity-40"></div>
+        <div className="absolute top-48 right-60 w-2 h-2 bg-secondary-400 rounded-full opacity-60"></div>
+        <div className="absolute bottom-60 left-40 w-4 h-4 bg-accent-400 rounded-full opacity-30"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-16 relative z-10">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Texte principal et bouton CTA */}
+      <div className="max-w-7xl mx-auto px-4 py-20 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Contenu principal */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-6"
+            className="space-y-8"
           >
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-camply-green leading-tight">
-              Camply : Gérez vos séjours,<br />
-              simplifiez votre vie.
+            
+            <h1 className="text-5xl lg:text-7xl font-display font-black text-neutral-900 leading-tight">
+              <span className="text-primary-600">Camplyze</span><br/>
+              La solution qui <span className="bg-gradient-to-r from-secondary-500 to-warning-500 bg-clip-text text-transparent">simplifie</span><br/>
+              votre gestion ALSH
             </h1>
             
-            <p className="text-xl text-camply-green font-medium">
-              La plateforme intuitive pour des<br />
-              colonies et centres de loisirs sereins.
+            <p className="text-xl text-neutral-600 leading-relaxed max-w-lg">
+              Organisez, partagez et animez votre équipe au même endroit. Plus de fichiers perdus, plus de messages WhatsApp dispersés.
             </p>
             
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-camply-yellow text-camply-green px-8 py-4 rounded-2xl font-display font-bold text-lg hover:bg-yellow-400 transition-all shadow-lg"
-            >
-              Découvrir les Fonctionnalités
-            </motion.button>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg shadow-xl hover:shadow-2xl hover:shadow-primary-500/25 transition-all duration-300"
+              >
+                Démarrer gratuitement
+              </motion.button>
+              
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="border-2 border-neutral-300 text-neutral-700 px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-neutral-50 hover:border-neutral-400 transition-all duration-300"
+              >
+                Découvrir
+              </motion.button>
+            </div>
+            
+            {/* Social proof */}
+            <div className="flex items-center space-x-4 text-sm text-neutral-500">
+              <div className="flex -space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-secondary-400 rounded-full border-2 border-white"></div>
+                <div className="w-8 h-8 bg-gradient-to-br from-accent-400 to-warning-400 rounded-full border-2 border-white"></div>
+                <div className="w-8 h-8 bg-gradient-to-br from-success-400 to-primary-400 rounded-full border-2 border-white"></div>
+              </div>
+              <span>Rejoint par <strong>500+ centres</strong> en France</span>
+            </div>
           </motion.div>
 
-          {/* Prévisualisation de l'interface */}
+          {/* Interface moderne */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.3 }}
+            className="relative lg:ml-10"
           >
-            {/* Simulation d'écran d'ordinateur */}
-            <div className="relative bg-camply-green rounded-2xl p-8 shadow-2xl">
-              {/* Barre du navigateur web */}
-              <div className="bg-white rounded-lg p-2 mb-4 flex items-center space-x-2">
-                <div className="flex space-x-1">
-                  <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+            {/* Mockup moderne */}
+            <div className="relative bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden">
+              {/* Barre de titre moderne */}
+              <div className="bg-neutral-100 px-6 py-4 flex items-center justify-between border-b border-neutral-200">
+                <div className="flex items-center space-x-3">
+                  <div className="flex space-x-1.5">
+                    <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  </div>
+                  <div className="bg-white rounded-lg px-4 py-1.5 text-sm text-neutral-600 border border-neutral-300">
+                    camplyze.app
+                  </div>
                 </div>
-                <div className="flex-1 bg-gray-100 rounded px-3 py-1 text-xs text-gray-600">
-                  camply.app
-                </div>
+                <div className="w-6 h-6 bg-accent-400 rounded-full"></div>
               </div>
               
-              {/* Interface simulée de Camply */}
-              <div className="bg-white rounded-lg p-6 space-y-4">
-                {/* En-tête du tableau de bord */}
-                <div className="flex items-center space-x-3 border-b pb-3">
-                  <img src={logo} alt="Camply" className="w-6 h-6" />
-                  <span className="font-bold text-camply-green">Camply Dashboard</span>
-                </div>
-                
-                {/* Barres de contenu factices */}
-                <div className="space-y-3">
-                  <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                </div>
-                
-                {/* Bouton d'action de démo */}
-                <div className="pt-4">
-                  <div className="bg-camply-yellow text-camply-green px-4 py-2 rounded text-sm font-medium inline-block">
-                    Nouveau Projet
+              {/* Interface principale */}
+              <div className="p-8 space-y-8">
+                {/* Header dashboard */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-gradient-to-br from-primary-600 to-secondary-500 p-2 rounded-xl">
+                      <img src={logo} alt="Camplyze" className="w-6 h-6 filter brightness-0 invert" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-neutral-800 text-lg">Tableau de bord</h3>
+                      <p className="text-sm text-neutral-500">Centre Les Petits Aventuriers</p>
+                    </div>
                   </div>
+                  <div className="bg-accent-100 text-accent-700 px-3 py-1 rounded-full text-sm font-medium">
+                    En ligne
+                  </div>
+                </div>
+                
+                {/* Stats cards */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-primary-50 border border-primary-200 rounded-2xl p-4">
+                    <div className="w-8 h-8 bg-primary-500 rounded-lg mb-3 flex items-center justify-center text-white text-sm font-bold">
+                      24
+                    </div>
+                    <p className="text-sm text-neutral-600">Enfants</p>
+                    <p className="text-xs text-neutral-500">Présents aujourd'hui</p>
+                  </div>
+                  
+                  <div className="bg-secondary-50 border border-secondary-200 rounded-2xl p-4">
+                    <div className="w-8 h-8 bg-secondary-500 rounded-lg mb-3 flex items-center justify-center text-white text-sm font-bold">
+                      8
+                    </div>
+                    <p className="text-sm text-neutral-600">Activités</p>
+                    <p className="text-xs text-neutral-500">Planifiées demain</p>
+                  </div>
+                  
+                  <div className="bg-accent-50 border border-accent-200 rounded-2xl p-4">
+                    <div className="w-8 h-8 bg-accent-500 rounded-lg mb-3 flex items-center justify-center text-white text-sm font-bold">
+                      5
+                    </div>
+                    <p className="text-sm text-neutral-600">Messages</p>
+                    <p className="text-xs text-neutral-500">Non lus</p>
+                  </div>
+                </div>
+                
+                {/* Quick actions */}
+                <div className="flex space-x-3">
+                  <button className="bg-primary-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors">
+                    Nouvelle activité
+                  </button>
+                  <button className="bg-secondary-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-secondary-700 transition-colors">
+                    Planning
+                  </button>
                 </div>
               </div>
             </div>
 
             {/* Petites icônes animées autour du mockup */}
+            {/* Éléments flottants modernes */}
             <motion.div 
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="absolute -top-4 -right-4 bg-white p-3 rounded-lg shadow-lg"
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-6 -right-6 w-12 h-12 bg-gradient-to-br from-warning-400 to-secondary-500 rounded-2xl shadow-xl"
             >
-              <svg className="w-6 h-6 text-camply-green" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
-                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v8a1 1 0 001 1h2a1 1 0 001-1V8a1 1 0 00-1-1h-2z"/>
-              </svg>
             </motion.div>
 
             <motion.div 
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2.5, repeat: Infinity }}
-              className="absolute -bottom-6 -left-6 bg-white p-3 rounded-lg shadow-lg"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -bottom-6 -left-6 w-16 h-16 bg-gradient-to-br from-accent-400 to-primary-500 rounded-full shadow-xl"
             >
-              <svg className="w-6 h-6 text-camply-green" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
             </motion.div>
 
             <motion.div 
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="absolute top-20 -right-8 bg-white p-2 rounded-lg shadow-lg"
+              animate={{ x: [0, 6, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-20 -right-8 w-8 h-8 bg-gradient-to-br from-success-400 to-accent-500 rounded-lg shadow-xl"
             >
-              <svg className="w-5 h-5 text-camply-blue" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-              </svg>
             </motion.div>
           </motion.div>
         </div>

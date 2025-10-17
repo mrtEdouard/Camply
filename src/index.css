@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,16 +11,18 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background: white;
+  line-height: 1.7;
+  color: #1F2937;
+  background: #F9FAFB;
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .font-display {
-  font-family: 'Nunito Sans', sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 #root {

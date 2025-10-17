@@ -46,61 +46,118 @@ const Fonctionnalites = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="bg-gradient-to-b from-slate-100 to-slate-50 py-20">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+    <div className="min-h-screen bg-neutral-50">
+      {/* Hero section */}
+      <div className="bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-24 relative overflow-hidden">
+        {/* Éléments décoratifs */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-accent-100 to-warning-100 rounded-full opacity-20 blur-3xl"></div>
+          <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-bl from-primary-100 to-secondary-100 rounded-full opacity-15 blur-3xl"></div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-camply-green mb-6">
-              Toutes les fonctionnalités
+            
+            <h1 className="text-4xl md:text-6xl font-display font-black text-neutral-900 mb-6 leading-tight">
+              Tous les outils dont vous avez besoin<br/>
+              <span className="bg-gradient-to-r from-primary-600 to-secondary-500 bg-clip-text text-transparent">pour réussir</span>
             </h1>
-            <p className="text-xl text-camply-green">
-              Découvrez comment Camply simplifie la gestion de vos colonies et centres de loisirs
+            
+            <p className="text-xl text-neutral-600 max-w-2xl mx-auto leading-relaxed">
+              Découvrez comment Camplyze révolutionne la gestion de vos colonies et centres de loisirs avec des outils modernes et intuitifs.
             </p>
           </motion.div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Grille des fonctionnalités */}
+      <div className="max-w-7xl mx-auto px-4 py-24">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {mainFeatures.map((feature, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 * index }}
-              className="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-all"
+              className="group bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-neutral-200 hover:border-primary-200 relative overflow-hidden"
             >
-              <div className="bg-camply-gray rounded-2xl p-4 w-fit mb-6">
-                <feature.icon className="w-8 h-8 text-camply-green" />
+              {/* Gradient de fond au hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-50 to-accent-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              {/* Contenu */}
+              <div className="relative z-10">
+                {/* Icône avec gradient */}
+                <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <feature.icon className="w-8 h-8 text-white" />
+                </div>
+                
+                <h3 className="text-lg font-display font-bold text-neutral-900 mb-4 group-hover:text-primary-700 transition-colors duration-300">
+                  {feature.title}
+                </h3>
+                
+                <p className="text-neutral-600 leading-relaxed text-sm group-hover:text-neutral-700 transition-colors duration-300">
+                  {feature.description}
+                </p>
+                
+                {/* Indicateur "En savoir plus" */}
+                <div className="mt-6 flex items-center text-primary-600 font-medium text-xs opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  Découvrir
+                  <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </div>
               </div>
-              
-              <h3 className="text-xl font-display font-bold text-camply-green mb-4">
-                {feature.title}
-              </h3>
-              
-              <p className="text-gray-600 leading-relaxed">
-                {feature.description}
-              </p>
             </motion.div>
           ))}
         </div>
 
+        {/* Section CTA finale */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mt-16"
+          className="text-center mt-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-3xl p-16 text-white relative overflow-hidden"
         >
-          <h2 className="text-3xl font-display font-bold text-camply-green mb-6">
-            Prêt à essayer ?
-          </h2>
-          <button className="bg-camply-yellow text-camply-green px-8 py-4 rounded-2xl font-display font-bold text-lg hover:bg-yellow-400 transition-all shadow-lg">
-            Démarrer l'essai gratuit
-          </button>
+          {/* Éléments décoratifs */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent-400/20 rounded-full blur-xl transform -translate-x-1/2 translate-y-1/2"></div>
+          </div>
+          
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-8">
+            </div>
+            
+            <h2 className="text-3xl md:text-4xl font-display font-black mb-6 leading-tight">
+              Prêt à transformer<br/>
+              <span className="text-accent-300">votre gestion</span> ?
+            </h2>
+            
+            <p className="text-xl text-white/90 mb-10 leading-relaxed">
+              Rejoignez les centaines de centres qui simplifient déjà leur quotidien avec Camplyze.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-white text-primary-700 px-10 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                Démarrer gratuitement
+              </button>
+              
+              <button className="border-2 border-white/30 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 backdrop-blur-sm transition-all duration-300">
+                En savoir plus
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-center mt-8 text-sm text-white/80">
+              <svg className="w-4 h-4 mr-2 text-accent-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              14 jours d'essai gratuit • Sans engagement
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>

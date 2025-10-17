@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  COLLECTIVITE
+  DIRECTEUR
+  ANIMATEUR
+}
+
+model Organization {
+  id        String  @id @default(cuid())
+  name      String
+  email     String  @unique
+  plan      String?
+  createdAt DateTime @default(now())
+  users     User[]
+  camps     Camp[]
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  role           Role
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  avatar         String?
+  createdAt      DateTime @default(now())
+}
+
+model Camp {
+  id             String   @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  startsAt       DateTime
+  endsAt         DateTime
+  createdAt      DateTime @default(now())
+}

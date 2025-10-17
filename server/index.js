@@ -1,0 +1,221 @@
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { PrismaClient, Role } from '../src/generated/prisma/index.js';
+
+const prisma = new PrismaClient();
+const app = express();
+const PORT = process.env.PORT || 4000;
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
+const COOKIE_NAME = 'camplyze_token';
+
+// Configuration multer pour upload d'images
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  }
+});
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use('/uploads', express.static(uploadsDir));
+
+function signToken(payload) {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+}
+
+function authMiddleware(req, res, next) {
+  const token = req.cookies[COOKIE_NAME];
+  if (!token) return res.status(401).json({ error: 'Unauthenticated' });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
+function requireCollectivite(req, res, next) {
+  if (req.user?.role !== 'COLLECTIVITE') return res.status(403).json({ error: 'Forbidden' });
+  next();
+}
+
+function requireEquipe(req, res, next) {
+  if (!['DIRECTEUR', 'ANIMATEUR'].includes(req.user?.role)) return res.status(403).json({ error: 'Forbidden' });
+  next();
+}
+
+app.get('/api/health', (_, res) => res.json({ ok: true }));
+
+app.post('/api/auth/register-collectivite', async (req, res) => {
+  const { organizationName, email, password, firstName, lastName } = req.body;
+  if (!organizationName || !email || !password || !firstName || !lastName) {
+    return res.status(400).json({ error: 'Missing fields' });
+  }
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) return res.status(409).json({ error: 'Email already in use' });
+  const passwordHash = await bcrypt.hash(password, 10);
+  const org = await prisma.organization.create({
+    data: { name: organizationName, email, plan: 'FREE' },
+  });
+  const user = await prisma.user.create({
+    data: {
+      email,
+      passwordHash,
+      firstName,
+      lastName,
+      role: Role.COLLECTIVITE,
+      organizationId: org.id,
+    },
+  });
+  const token = signToken({ id: user.id, orgId: org.id, role: 'COLLECTIVITE' });
+  res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
+  return res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+});
+
+app.post('/api/auth/login-collectivite', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || user.role !== 'COLLECTIVITE') return res.status(401).json({ error: 'Invalid credentials' });
+  const ok = await bcrypt.compare(password, user.passwordHash);
+  if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+  const token = signToken({ id: user.id, orgId: user.organizationId, role: user.role });
+  res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
+  res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+});
+
+app.post('/api/auth/login-equipe', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || !['DIRECTEUR', 'ANIMATEUR'].includes(user.role)) return res.status(401).json({ error: 'Invalid credentials' });
+  const ok = await bcrypt.compare(password, user.passwordHash);
+  if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+  const token = signToken({ id: user.id, orgId: user.organizationId, role: user.role });
+  res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
+  res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+});
+
+app.get('/api/auth/me', authMiddleware, async (req, res) => {
+  const user = await prisma.user.findUnique({ 
+    where: { id: req.user.id },
+    include: { organization: true }
+  });
+  if (!user) return res.status(404).json({ error: 'Not found' });
+  res.json({ 
+    user: { 
+      id: user.id, 
+      email: user.email, 
+      role: user.role, 
+      organizationId: user.organizationId, 
+      firstName: user.firstName, 
+      lastName: user.lastName, 
+      avatar: user.avatar,
+      organization: {
+        id: user.organization.id,
+        name: user.organization.name,
+        email: user.organization.email
+      }
+    } 
+  });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  res.clearCookie(COOKIE_NAME);
+  res.json({ ok: true });
+});
+
+// Directors CRUD (collectivite only)
+app.get('/api/users/directors', authMiddleware, requireCollectivite, async (req, res) => {
+  const directors = await prisma.user.findMany({ where: { organizationId: req.user.orgId, role: Role.DIRECTEUR } });
+  res.json({ directors });
+});
+
+app.post('/api/users/directors', authMiddleware, requireCollectivite, async (req, res) => {
+  const { email, password, firstName, lastName } = req.body;
+  if (!email || !password || !firstName || !lastName) return res.status(400).json({ error: 'Missing fields' });
+  const exists = await prisma.user.findUnique({ where: { email } });
+  if (exists) return res.status(409).json({ error: 'Email already used' });
+  const passwordHash = await bcrypt.hash(password, 10);
+  const director = await prisma.user.create({
+    data: {
+      email,
+      passwordHash,
+      firstName,
+      lastName,
+      role: Role.DIRECTEUR,
+      organizationId: req.user.orgId,
+    },
+  });
+  res.json({ director });
+});
+
+app.put('/api/users/directors/:id', authMiddleware, requireCollectivite, async (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName } = req.body;
+  const director = await prisma.user.update({ where: { id }, data: { firstName, lastName } });
+  res.json({ director });
+});
+
+app.delete('/api/users/directors/:id', authMiddleware, requireCollectivite, async (req, res) => {
+  const { id } = req.params;
+  await prisma.user.delete({ where: { id } });
+  res.json({ ok: true });
+});
+
+// Avatar upload
+app.post('/api/auth/avatar', authMiddleware, upload.single('avatar'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  
+  const avatarUrl = `/uploads/${req.file.filename}`;
+  const user = await prisma.user.update({ 
+    where: { id: req.user.id }, 
+    data: { avatar: avatarUrl } 
+  });
+  
+  res.json({ avatar: user.avatar });
+});
+
+// Update user profile
+app.put('/api/auth/profile', authMiddleware, async (req, res) => {
+  const { firstName, lastName } = req.body;
+  const user = await prisma.user.update({
+    where: { id: req.user.id },
+    data: { firstName, lastName }
+  });
+  res.json({ user: { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role, avatar: user.avatar } });
+});
+
+app.listen(PORT, () => {
+  console.log(`API listening on http://localhost:${PORT}`);
+});
