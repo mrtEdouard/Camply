@@ -1,4 +1,3 @@
-import React from 'react'
 import { Crown, Users, Star } from 'lucide-react'
 
 interface BadgeProps {
