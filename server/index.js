@@ -47,7 +47,19 @@ const upload = multer({
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+
+// Configuration CORS pour développement et production
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000', 
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({ 
+  origin: allowedOrigins,
+  credentials: true 
+}));
+
 app.use('/uploads', express.static(uploadsDir));
 
 function signToken(payload) {
