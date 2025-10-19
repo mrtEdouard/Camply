@@ -96,6 +96,42 @@ app.get('/', (_, res) => res.json({ status: 'ok', service: 'camplyze-api' }));
 app.get('/health', (_, res) => res.json({ ok: true }));
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 
+// Database connection test endpoint
+app.get('/api/test-db', async (req, res) => {
+  try {
+    console.log('Testing database connection...');
+    console.log('DATABASE_URL defined:', !!process.env.DATABASE_URL);
+    
+    const result = await prisma.$queryRaw`SELECT 1 as test`;
+    const userCount = await prisma.user.count();
+    const orgCount = await prisma.organization.count();
+    
+    res.json({ 
+      success: true,
+      dbTest: result,
+      users: userCount,
+      organizations: orgCount,
+      env: {
+        databaseUrlDefined: !!process.env.DATABASE_URL,
+        nodeEnv: process.env.NODE_ENV,
+        port: process.env.PORT
+      }
+    });
+  } catch (error) {
+    console.error('Database test error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      code: error.code,
+      env: {
+        databaseUrlDefined: !!process.env.DATABASE_URL,
+        nodeEnv: process.env.NODE_ENV,
+        port: process.env.PORT
+      }
+    });
+  }
+});
+
 app.post('/api/auth/register-collectivite', async (req, res) => {
   try {
     const { organizationName, email, password, firstName, lastName } = req.body;
