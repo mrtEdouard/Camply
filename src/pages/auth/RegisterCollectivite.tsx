@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { apiUrl } from '../../config/api'
 
 const RegisterCollectivite = () => {
   const [form, setForm] = useState({ organizationName: '', email: '', password: '', firstName: '', lastName: '' })
@@ -9,7 +10,7 @@ const RegisterCollectivite = () => {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    const res = await fetch('/api/auth/register-collectivite', {
+    const res = await fetch(apiUrl('/api/auth/register-collectivite'), {
       method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
     })
     if (res.ok) navigate('/dashboard-collectivite')

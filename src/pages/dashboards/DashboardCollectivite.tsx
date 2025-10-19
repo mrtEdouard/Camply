@@ -5,6 +5,7 @@ import Avatar from '../../components/ui/Avatar'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
+import { apiUrl } from '../../config/api'
 
 const DashboardCollectivite = () => {
   const { user, loading, refresh, uploadAvatar, updateProfile } = useAuth()
@@ -226,7 +227,7 @@ const EquipeModule = () => {
   const [loading, setLoading] = React.useState(false)
 
   const load = async () => {
-    const res = await fetch('/api/users/directors', { credentials: 'include' })
+    const res = await fetch(apiUrl('/api/users/directors'), { credentials: 'include' })
     if (res.ok) setList((await res.json()).directors)
   }
   React.useEffect(() => { load() }, [])
@@ -235,7 +236,7 @@ const EquipeModule = () => {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await fetch('/api/users/directors', { 
+      const res = await fetch(apiUrl('/api/users/directors'), { 
         method:'POST', 
         credentials:'include', 
         headers:{'Content-Type':'application/json'}, 
@@ -253,7 +254,7 @@ const EquipeModule = () => {
   
   const remove = async (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce directeur ?')) {
-      await fetch(`/api/users/directors/${id}`, { method:'DELETE', credentials:'include' })
+      await fetch(apiUrl(`/api/users/directors/${id}`), { method:'DELETE', credentials:'include' })
       load()
     }
   }

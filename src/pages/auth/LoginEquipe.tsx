@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
+import { apiUrl } from '../../config/api'
 
 const LoginEquipe = () => {
   const [email, setEmail] = useState('')
@@ -15,7 +16,7 @@ const LoginEquipe = () => {
     setLoading(true)
     
     try {
-      const res = await fetch('/api/auth/login-equipe', {
+      const res = await fetch(apiUrl('/api/auth/login-equipe'), {
         method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
       })
       if (res.ok) {
