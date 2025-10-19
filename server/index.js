@@ -55,11 +55,28 @@ const allowedOrigins = [
   'https://camply-production.up.railway.app',
   'https://camply-ooin.vercel.app',
   'https://camply-eosin.vercel.app',
+  'https://camply-gr0dxtgaw-edouards-projects-876bd8d1.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({ 
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow all Vercel preview deployments for your project
+    if (origin.includes('vercel.app') && origin.includes('edouard')) {
+      return callback(null, true);
+    }
+    
+    // Reject other origins
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true 
 }));
 
