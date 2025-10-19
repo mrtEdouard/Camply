@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import { apiUrl } from '../../config/api'
+import { useAuth } from '../../auth/AuthContext'
 
 const LoginEquipe = () => {
   const [email, setEmail] = useState('')
@@ -9,6 +10,7 @@ const LoginEquipe = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,13 +23,13 @@ const LoginEquipe = () => {
       })
       if (res.ok) {
         const data = await res.json()
-        if (data.token) {
-          localStorage.setItem('auth_token', data.token)
+        if (data.token && data.user) {
+          login(data.user, data.token)
+          // Animation de succès avant navigation
+          setTimeout(() => {
+            navigate('/dashboard-equipe')
+          }, 800)
         }
-        // Animation de succès avant navigation
-        setTimeout(() => {
-          navigate('/dashboard-equipe')
-        }, 800)
       } else {
         setError((await res.json()).error || 'Erreur')
         setLoading(false)

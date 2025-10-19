@@ -226,7 +226,7 @@ const EquipeModule = () => {
   const [showForm, setShowForm] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem('auth_token')
     return token ? { 'Authorization': `Bearer ${token}` } : {}
   }

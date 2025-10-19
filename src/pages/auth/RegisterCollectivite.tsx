@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiUrl } from '../../config/api'
+import { useAuth } from '../../auth/AuthContext'
 
 const RegisterCollectivite = () => {
   const [form, setForm] = useState({ organizationName: '', email: '', password: '', firstName: '', lastName: '' })
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -15,10 +17,10 @@ const RegisterCollectivite = () => {
     })
     if (res.ok) {
       const data = await res.json()
-      if (data.token) {
-        localStorage.setItem('auth_token', data.token)
+      if (data.token && data.user) {
+        login(data.user, data.token)
+        navigate('/dashboard-collectivite')
       }
-      navigate('/dashboard-collectivite')
     } else {
       setError((await res.json()).error || 'Erreur')
     }

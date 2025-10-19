@@ -23,6 +23,7 @@ type AuthContextType = {
   logout: () => Promise<void>
   uploadAvatar: (file: File) => Promise<void>
   updateProfile: (data: { firstName: string; lastName: string }) => Promise<void>
+  login: (userData: any, token: string) => void
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -32,20 +33,34 @@ const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
   uploadAvatar: async () => {},
   updateProfile: async () => {},
+  login: () => {},
 })
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem('auth_token')
     return token ? { 'Authorization': `Bearer ${token}` } : {}
+  }
+
+  const login = (userData: any, token: string) => {
+    localStorage.setItem('auth_token', token)
+    setUser(userData)
+    setLoading(false)
   }
 
   const refresh = async () => {
     try {
       const headers = { ...getAuthHeaders() }
+      if (!headers.Authorization) {
+        // No token available, user is not authenticated
+        setUser(null)
+        setLoading(false)
+        return
+      }
+      
       const res = await fetch(apiUrl('/api/auth/me'), { 
         credentials: 'include',
         headers 
@@ -110,7 +125,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => { refresh() }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading, refresh, logout, uploadAvatar, updateProfile }}>
+    <AuthContext.Provider value={{ user, loading, refresh, logout, uploadAvatar, updateProfile, login }}>
       {children}
     </AuthContext.Provider>
   )
