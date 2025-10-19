@@ -97,51 +97,72 @@ app.get('/health', (_, res) => res.json({ ok: true }));
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 
 app.post('/api/auth/register-collectivite', async (req, res) => {
-  const { organizationName, email, password, firstName, lastName } = req.body;
-  if (!organizationName || !email || !password || !firstName || !lastName) {
-    return res.status(400).json({ error: 'Missing fields' });
+  try {
+    const { organizationName, email, password, firstName, lastName } = req.body;
+    if (!organizationName || !email || !password || !firstName || !lastName) {
+      return res.status(400).json({ error: 'Missing fields' });
+    }
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) return res.status(409).json({ error: 'Email already in use' });
+    const passwordHash = await bcrypt.hash(password, 10);
+    const org = await prisma.organization.create({
+      data: { name: organizationName, email, plan: 'FREE' },
+    });
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        firstName,
+        lastName,
+        role: Role.COLLECTIVITE,
+        organizationId: org.id,
+      },
+    });
+    const token = signToken({ id: user.id, orgId: org.id, role: 'COLLECTIVITE' });
+    res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
+    return res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+  } catch (error) {
+    console.error('Registration error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return res.status(409).json({ error: 'Email already in use' });
-  const passwordHash = await bcrypt.hash(password, 10);
-  const org = await prisma.organization.create({
-    data: { name: organizationName, email, plan: 'FREE' },
-  });
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      firstName,
-      lastName,
-      role: Role.COLLECTIVITE,
-      organizationId: org.id,
-    },
-  });
-  const token = signToken({ id: user.id, orgId: org.id, role: 'COLLECTIVITE' });
-  res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
-  return res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
 });
 
 app.post('/api/auth/login-collectivite', async (req, res) => {
-  const { email, password } = req.body;
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || user.role !== 'COLLECTIVITE') return res.status(401).json({ error: 'Invalid credentials' });
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
-  const token = signToken({ id: user.id, orgId: user.organizationId, role: user.role });
-  res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
-  res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Missing email or password' });
+    }
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || user.role !== 'COLLECTIVITE') return res.status(401).json({ error: 'Invalid credentials' });
+    const ok = await bcrypt.compare(password, user.passwordHash);
+    if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+    const token = signToken({ id: user.id, orgId: user.organizationId, role: user.role });
+    res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
+    res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.post('/api/auth/login-equipe', async (req, res) => {
-  const { email, password } = req.body;
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !['DIRECTEUR', 'ANIMATEUR'].includes(user.role)) return res.status(401).json({ error: 'Invalid credentials' });
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
-  const token = signToken({ id: user.id, orgId: user.organizationId, role: user.role });
-  res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
-  res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Missing email or password' });
+    }
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !['DIRECTEUR', 'ANIMATEUR'].includes(user.role)) return res.status(401).json({ error: 'Invalid credentials' });
+    const ok = await bcrypt.compare(password, user.passwordHash);
+    if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+    const token = signToken({ id: user.id, orgId: user.organizationId, role: user.role });
+    res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
+    res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
