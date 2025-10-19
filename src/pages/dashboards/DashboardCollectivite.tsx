@@ -221,9 +221,12 @@ const DashboardCollectivite = () => {
 
 const EquipeModule = () => {
   const { user } = useAuth()
-  const [list, setList] = React.useState<any[]>([])
-  const [form, setForm] = React.useState({ firstName:'', lastName:'', email:'', password:'' })
-  const [showForm, setShowForm] = React.useState(false)
+  const [directors, setDirectors] = React.useState<any[]>([])
+  const [animateurs, setAnimateurs] = React.useState<any[]>([])
+  const [directorForm, setDirectorForm] = React.useState({ firstName:'', lastName:'', email:'', password:'' })
+  const [animateurForm, setAnimateurForm] = React.useState({ firstName:'', lastName:'', email:'', password:'' })
+  const [showDirectorForm, setShowDirectorForm] = React.useState(false)
+  const [showAnimateurForm, setShowAnimateurForm] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
 
   const getAuthHeaders = (): Record<string, string> => {
@@ -231,14 +234,25 @@ const EquipeModule = () => {
     return token ? { 'Authorization': `Bearer ${token}` } : {}
   }
 
-  const load = async () => {
+  const loadDirectors = async () => {
     const headers = { ...getAuthHeaders() }
     const res = await fetch(apiUrl('/api/users/directors'), { credentials: 'include', headers })
-    if (res.ok) setList((await res.json()).directors)
+    if (res.ok) setDirectors((await res.json()).directors)
   }
+
+  const loadAnimateurs = async () => {
+    const headers = { ...getAuthHeaders() }
+    const res = await fetch(apiUrl('/api/users/animateurs'), { credentials: 'include', headers })
+    if (res.ok) setAnimateurs((await res.json()).animateurs)
+  }
+
+  const load = async () => {
+    await Promise.all([loadDirectors(), loadAnimateurs()])
+  }
+
   React.useEffect(() => { load() }, [])
 
-  const create = async (e: React.FormEvent) => {
+  const createDirector = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     try {
@@ -247,11 +261,32 @@ const EquipeModule = () => {
         method:'POST', 
         credentials:'include', 
         headers, 
-        body: JSON.stringify(form) 
+        body: JSON.stringify(directorForm) 
       })
       if (res.ok) { 
-        setForm({firstName:'', lastName:'', email:'', password:''})
-        setShowForm(false)
+        setDirectorForm({firstName:'', lastName:'', email:'', password:''})
+        setShowDirectorForm(false)
+        load() 
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const createAnimateur = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const headers = { 'Content-Type':'application/json', ...getAuthHeaders() }
+      const res = await fetch(apiUrl('/api/users/animateurs'), { 
+        method:'POST', 
+        credentials:'include', 
+        headers, 
+        body: JSON.stringify(animateurForm) 
+      })
+      if (res.ok) { 
+        setAnimateurForm({firstName:'', lastName:'', email:'', password:''})
+        setShowAnimateurForm(false)
         load() 
       }
     } finally {
@@ -259,10 +294,18 @@ const EquipeModule = () => {
     }
   }
   
-  const remove = async (id: string) => {
+  const removeDirector = async (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce directeur ?')) {
       const headers = { ...getAuthHeaders() }
       await fetch(apiUrl(`/api/users/directors/${id}`), { method:'DELETE', credentials:'include', headers })
+      load()
+    }
+  }
+
+  const removeAnimateur = async (id: string) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet animateur ?')) {
+      const headers = { ...getAuthHeaders() }
+      await fetch(apiUrl(`/api/users/animateurs/${id}`), { method:'DELETE', credentials:'include', headers })
       load()
     }
   }
@@ -276,32 +319,41 @@ const EquipeModule = () => {
           <Users className="w-5 h-5 text-primary-600" />
           Gestion de l'équipe
         </h2>
-        <button 
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          Ajouter directeur
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setShowDirectorForm(!showDirectorForm)}
+            className="flex items-center gap-2 bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            Directeur
+          </button>
+          <button 
+            onClick={() => setShowAnimateurForm(!showAnimateurForm)}
+            className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            Animateur
+          </button>
+        </div>
       </div>
       
-      {showForm && (
+      {showDirectorForm && (
         <Card gradient className="p-4 mb-6 border-primary-200">
           <h3 className="font-medium mb-4 text-neutral-800">Nouveau directeur</h3>
-          <form onSubmit={create} className="space-y-4">
+          <form onSubmit={createDirector} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <input 
                 className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" 
                 placeholder="Prénom" 
-                value={form.firstName} 
-                onChange={e=>setForm({...form, firstName:e.target.value})} 
+                value={directorForm.firstName} 
+                onChange={e=>setDirectorForm({...directorForm, firstName:e.target.value})} 
                 required
               />
               <input 
                 className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" 
                 placeholder="Nom" 
-                value={form.lastName} 
-                onChange={e=>setForm({...form, lastName:e.target.value})} 
+                value={directorForm.lastName} 
+                onChange={e=>setDirectorForm({...directorForm, lastName:e.target.value})} 
                 required
               />
             </div>
@@ -309,16 +361,16 @@ const EquipeModule = () => {
               className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" 
               placeholder="Email" 
               type="email"
-              value={form.email} 
-              onChange={e=>setForm({...form, email:e.target.value})} 
+              value={directorForm.email} 
+              onChange={e=>setDirectorForm({...directorForm, email:e.target.value})} 
               required
             />
             <input 
               className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" 
               placeholder="Mot de passe temporaire" 
               type="password" 
-              value={form.password} 
-              onChange={e=>setForm({...form, password:e.target.value})} 
+              value={directorForm.password} 
+              onChange={e=>setDirectorForm({...directorForm, password:e.target.value})} 
               required
             />
             <div className="flex gap-3">
@@ -331,7 +383,63 @@ const EquipeModule = () => {
               </button>
               <button 
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={() => setShowDirectorForm(false)}
+                className="bg-neutral-200 text-neutral-700 px-6 py-2 rounded-lg hover:bg-neutral-300 transition-colors font-medium"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </Card>
+      )}
+
+      {showAnimateurForm && (
+        <Card gradient className="p-4 mb-6 border-green-200">
+          <h3 className="font-medium mb-4 text-neutral-800">Nouvel animateur</h3>
+          <form onSubmit={createAnimateur} className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <input 
+                className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                placeholder="Prénom" 
+                value={animateurForm.firstName} 
+                onChange={e=>setAnimateurForm({...animateurForm, firstName:e.target.value})} 
+                required
+              />
+              <input 
+                className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                placeholder="Nom" 
+                value={animateurForm.lastName} 
+                onChange={e=>setAnimateurForm({...animateurForm, lastName:e.target.value})} 
+                required
+              />
+            </div>
+            <input 
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+              placeholder="Email" 
+              type="email"
+              value={animateurForm.email} 
+              onChange={e=>setAnimateurForm({...animateurForm, email:e.target.value})} 
+              required
+            />
+            <input 
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+              placeholder="Mot de passe temporaire" 
+              type="password" 
+              value={animateurForm.password} 
+              onChange={e=>setAnimateurForm({...animateurForm, password:e.target.value})} 
+              required
+            />
+            <div className="flex gap-3">
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
+              >
+                {loading ? 'Création...' : 'Créer l\'animateur'}
+              </button>
+              <button 
+                type="button"
+                onClick={() => setShowAnimateurForm(false)}
                 className="bg-neutral-200 text-neutral-700 px-6 py-2 rounded-lg hover:bg-neutral-300 transition-colors font-medium"
               >
                 Annuler
@@ -341,44 +449,98 @@ const EquipeModule = () => {
         </Card>
       )}
       
-      <div className="space-y-3">
-        {list.length === 0 ? (
-          <div className="text-center py-8 text-neutral-500">
-            <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>Aucun directeur pour le moment</p>
-            <p className="text-sm">Commencez par ajouter votre premier directeur</p>
-          </div>
-        ) : (
-          list.map(director => (
-            <Card key={director.id} hover className="p-4">
-              <div className="flex items-center gap-4">
-                <Avatar 
-                  src={director.avatar} 
-                  alt={`${director.firstName} ${director.lastName}`}
-                  size="md"
-                />
-                <div className="flex-1">
-                  <div className="font-medium text-neutral-800">
-                    {director.firstName} {director.lastName}
-                  </div>
-                  <div className="text-sm text-neutral-600">{director.email}</div>
-                  <Badge role="DIRECTEUR" className="mt-1" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <button className="p-2 text-neutral-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => remove(director.id)}
-                    className="p-2 text-neutral-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+      <div className="space-y-6">
+        {/* Section Directeurs */}
+        <div>
+          <h3 className="font-semibold text-neutral-800 mb-3 flex items-center gap-2">
+            <Crown className="w-4 h-4 text-blue-600" />
+            Directeurs ({directors.length})
+          </h3>
+          <div className="space-y-3">
+            {directors.length === 0 ? (
+              <div className="text-center py-6 text-neutral-500 border border-dashed border-neutral-200 rounded-lg">
+                <Crown className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Aucun directeur pour le moment</p>
               </div>
-            </Card>
-          ))
-        )}
+            ) : (
+              directors.map(director => (
+                <Card key={director.id} hover className="p-4">
+                  <div className="flex items-center gap-4">
+                    <Avatar 
+                      src={director.avatar} 
+                      alt={`${director.firstName} ${director.lastName}`}
+                      size="md"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-neutral-800">
+                        {director.firstName} {director.lastName}
+                      </div>
+                      <div className="text-sm text-neutral-600">{director.email}</div>
+                      <Badge role="DIRECTEUR" className="mt-1" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button className="p-2 text-neutral-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => removeDirector(director.id)}
+                        className="p-2 text-neutral-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Section Animateurs */}
+        <div>
+          <h3 className="font-semibold text-neutral-800 mb-3 flex items-center gap-2">
+            <UserPlus className="w-4 h-4 text-green-600" />
+            Animateurs ({animateurs.length})
+          </h3>
+          <div className="space-y-3">
+            {animateurs.length === 0 ? (
+              <div className="text-center py-6 text-neutral-500 border border-dashed border-neutral-200 rounded-lg">
+                <UserPlus className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Aucun animateur pour le moment</p>
+              </div>
+            ) : (
+              animateurs.map(animateur => (
+                <Card key={animateur.id} hover className="p-4">
+                  <div className="flex items-center gap-4">
+                    <Avatar 
+                      src={animateur.avatar} 
+                      alt={`${animateur.firstName} ${animateur.lastName}`}
+                      size="md"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-neutral-800">
+                        {animateur.firstName} {animateur.lastName}
+                      </div>
+                      <div className="text-sm text-neutral-600">{animateur.email}</div>
+                      <Badge role="ANIMATEUR" className="mt-1" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button className="p-2 text-neutral-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => removeAnimateur(animateur.id)}
+                        className="p-2 text-neutral-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </Card>
   )

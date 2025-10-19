@@ -220,7 +220,10 @@ app.post('/api/auth/login-equipe', async (req, res) => {
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
     const token = signToken({ id: user.id, orgId: user.organizationId, role: user.role });
     res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
-    res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+    res.json({ 
+      user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId },
+      token: token // Send token in response for cross-domain auth
+    });
   } catch (error) {
     console.error('Login error:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -289,6 +292,63 @@ app.put('/api/users/directors/:id', authMiddleware, requireCollectivite, async (
 });
 
 app.delete('/api/users/directors/:id', authMiddleware, requireCollectivite, async (req, res) => {
+  const { id } = req.params;
+  await prisma.user.delete({ where: { id } });
+  res.json({ ok: true });
+});
+
+// Animateurs CRUD (directeur et collectivité)
+app.get('/api/users/animateurs', authMiddleware, async (req, res) => {
+  // Permettre aux directeurs et collectivités de voir les animateurs
+  if (!['DIRECTEUR', 'COLLECTIVITE'].includes(req.user?.role)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  const animateurs = await prisma.user.findMany({ 
+    where: { 
+      organizationId: req.user.orgId, 
+      role: Role.ANIMATEUR 
+    } 
+  });
+  res.json({ animateurs });
+});
+
+app.post('/api/users/animateurs', authMiddleware, async (req, res) => {
+  // Permettre aux directeurs et collectivités de créer des animateurs
+  if (!['DIRECTEUR', 'COLLECTIVITE'].includes(req.user?.role)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  const { email, password, firstName, lastName } = req.body;
+  if (!email || !password || !firstName || !lastName) return res.status(400).json({ error: 'Missing fields' });
+  const exists = await prisma.user.findUnique({ where: { email } });
+  if (exists) return res.status(409).json({ error: 'Email already used' });
+  const passwordHash = await bcrypt.hash(password, 10);
+  const animateur = await prisma.user.create({
+    data: {
+      email,
+      passwordHash,
+      firstName,
+      lastName,
+      role: Role.ANIMATEUR,
+      organizationId: req.user.orgId,
+    },
+  });
+  res.json({ animateur });
+});
+
+app.put('/api/users/animateurs/:id', authMiddleware, async (req, res) => {
+  if (!['DIRECTEUR', 'COLLECTIVITE'].includes(req.user?.role)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  const { id } = req.params;
+  const { firstName, lastName } = req.body;
+  const animateur = await prisma.user.update({ where: { id }, data: { firstName, lastName } });
+  res.json({ animateur });
+});
+
+app.delete('/api/users/animateurs/:id', authMiddleware, async (req, res) => {
+  if (!['DIRECTEUR', 'COLLECTIVITE'].includes(req.user?.role)) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
   const { id } = req.params;
   await prisma.user.delete({ where: { id } });
   res.json({ ok: true });

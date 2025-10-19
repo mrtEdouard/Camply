@@ -1,10 +1,12 @@
 import { useAuth } from '../../auth/AuthContext'
 import { useEffect, useState } from 'react'
-import { Calendar, MapPin, Users, Settings, Bell, Award, Zap } from 'lucide-react'
+import React from 'react'
+import { Calendar, MapPin, Users, Settings, Bell, Award, Zap, Plus, Edit2, Trash2 } from 'lucide-react'
 import Avatar from '../../components/ui/Avatar'
 import Card from '../../components/ui/Card'
 import Badge from '../../components/ui/Badge'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
+import { apiUrl } from '../../config/api'
 
 const DashboardEquipe = () => {
   const { user, loading, refresh, uploadAvatar, updateProfile } = useAuth()
@@ -116,6 +118,9 @@ const DashboardEquipe = () => {
                 <div className="text-xs sm:text-sm text-neutral-600">Satisfaction</div>
               </Card>
             </div>
+
+            {/* Gestion des animateurs (pour directeurs) */}
+            {user.role === 'DIRECTEUR' && <AnimateursModule />}
 
             {/* Séjours en cours */}
             <Card className="p-4 sm:p-6">
@@ -260,6 +265,169 @@ const DashboardEquipe = () => {
         </div>
       </div>
     </div>
+  )
+}
+
+// Composant pour la gestion des animateurs (directeurs uniquement)
+const AnimateursModule = () => {
+  const [animateurs, setAnimateurs] = React.useState<any[]>([])
+  const [form, setForm] = React.useState({ firstName:'', lastName:'', email:'', password:'' })
+  const [showForm, setShowForm] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
+
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = localStorage.getItem('auth_token')
+    return token ? { 'Authorization': `Bearer ${token}` } : {}
+  }
+
+  const load = async () => {
+    const headers = { ...getAuthHeaders() }
+    const res = await fetch(apiUrl('/api/users/animateurs'), { credentials: 'include', headers })
+    if (res.ok) setAnimateurs((await res.json()).animateurs)
+  }
+  
+  React.useEffect(() => { load() }, [])
+
+  const create = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const headers = { 'Content-Type':'application/json', ...getAuthHeaders() }
+      const res = await fetch(apiUrl('/api/users/animateurs'), { 
+        method:'POST', 
+        credentials:'include', 
+        headers, 
+        body: JSON.stringify(form) 
+      })
+      if (res.ok) { 
+        setForm({firstName:'', lastName:'', email:'', password:''})
+        setShowForm(false)
+        load() 
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  const remove = async (id: string) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet animateur ?')) {
+      const headers = { ...getAuthHeaders() }
+      await fetch(apiUrl(`/api/users/animateurs/${id}`), { method:'DELETE', credentials:'include', headers })
+      load()
+    }
+  }
+
+  return (
+    <Card className="p-4 sm:p-6 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-neutral-800 flex items-center gap-2">
+          <Users className="w-5 h-5 text-green-600" />
+          Mes animateurs
+        </h2>
+        <button 
+          onClick={() => setShowForm(!showForm)}
+          className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+        >
+          <Plus className="w-4 h-4" />
+          Ajouter
+        </button>
+      </div>
+      
+      {showForm && (
+        <Card gradient className="p-4 mb-4 border-green-200">
+          <h3 className="font-medium mb-4 text-neutral-800">Nouvel animateur</h3>
+          <form onSubmit={create} className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <input 
+                className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                placeholder="Prénom" 
+                value={form.firstName} 
+                onChange={e=>setForm({...form, firstName:e.target.value})} 
+                required
+              />
+              <input 
+                className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                placeholder="Nom" 
+                value={form.lastName} 
+                onChange={e=>setForm({...form, lastName:e.target.value})} 
+                required
+              />
+            </div>
+            <input 
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+              placeholder="Email" 
+              type="email"
+              value={form.email} 
+              onChange={e=>setForm({...form, email:e.target.value})} 
+              required
+            />
+            <input 
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+              placeholder="Mot de passe temporaire" 
+              type="password" 
+              value={form.password} 
+              onChange={e=>setForm({...form, password:e.target.value})} 
+              required
+            />
+            <div className="flex gap-3">
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 text-sm"
+              >
+                {loading ? 'Création...' : 'Créer'}
+              </button>
+              <button 
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="bg-neutral-200 text-neutral-700 px-4 py-2 rounded-lg hover:bg-neutral-300 transition-colors font-medium text-sm"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </Card>
+      )}
+      
+      <div className="space-y-3">
+        {animateurs.length === 0 ? (
+          <div className="text-center py-6 text-neutral-500">
+            <Users className="w-10 h-10 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">Aucun animateur dans votre équipe</p>
+          </div>
+        ) : (
+          animateurs.map(animateur => (
+            <Card key={animateur.id} hover className="p-3">
+              <div className="flex items-center gap-3">
+                <Avatar 
+                  src={animateur.avatar} 
+                  alt={`${animateur.firstName} ${animateur.lastName}`}
+                  size="sm"
+                />
+                <div className="flex-1">
+                  <div className="font-medium text-neutral-800 text-sm">
+                    {animateur.firstName} {animateur.lastName}
+                  </div>
+                  <div className="text-xs text-neutral-600">{animateur.email}</div>
+                  <Badge role="ANIMATEUR" className="mt-1" />
+                </div>
+                <div className="flex items-center gap-1">
+                  <button className="p-1.5 text-neutral-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors">
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    onClick={() => remove(animateur.id)}
+                    className="p-1.5 text-neutral-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </Card>
+          ))
+        )}
+      </div>
+    </Card>
   )
 }
 
