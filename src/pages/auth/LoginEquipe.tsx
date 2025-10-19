@@ -20,6 +20,10 @@ const LoginEquipe = () => {
         method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
       })
       if (res.ok) {
+        const data = await res.json()
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token)
+        }
         // Animation de succès avant navigation
         setTimeout(() => {
           navigate('/dashboard-equipe')

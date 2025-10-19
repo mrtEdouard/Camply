@@ -13,8 +13,15 @@ const RegisterCollectivite = () => {
     const res = await fetch(apiUrl('/api/auth/register-collectivite'), {
       method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
     })
-    if (res.ok) navigate('/dashboard-collectivite')
-    else setError((await res.json()).error || 'Erreur')
+    if (res.ok) {
+      const data = await res.json()
+      if (data.token) {
+        localStorage.setItem('auth_token', data.token)
+      }
+      navigate('/dashboard-collectivite')
+    } else {
+      setError((await res.json()).error || 'Erreur')
+    }
   }
 
   return (

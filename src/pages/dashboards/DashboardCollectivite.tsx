@@ -226,8 +226,14 @@ const EquipeModule = () => {
   const [showForm, setShowForm] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('auth_token')
+    return token ? { 'Authorization': `Bearer ${token}` } : {}
+  }
+
   const load = async () => {
-    const res = await fetch(apiUrl('/api/users/directors'), { credentials: 'include' })
+    const headers = { ...getAuthHeaders() }
+    const res = await fetch(apiUrl('/api/users/directors'), { credentials: 'include', headers })
     if (res.ok) setList((await res.json()).directors)
   }
   React.useEffect(() => { load() }, [])
@@ -236,10 +242,11 @@ const EquipeModule = () => {
     e.preventDefault()
     setLoading(true)
     try {
+      const headers = { 'Content-Type':'application/json', ...getAuthHeaders() }
       const res = await fetch(apiUrl('/api/users/directors'), { 
         method:'POST', 
         credentials:'include', 
-        headers:{'Content-Type':'application/json'}, 
+        headers, 
         body: JSON.stringify(form) 
       })
       if (res.ok) { 
@@ -254,7 +261,8 @@ const EquipeModule = () => {
   
   const remove = async (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce directeur ?')) {
-      await fetch(apiUrl(`/api/users/directors/${id}`), { method:'DELETE', credentials:'include' })
+      const headers = { ...getAuthHeaders() }
+      await fetch(apiUrl(`/api/users/directors/${id}`), { method:'DELETE', credentials:'include', headers })
       load()
     }
   }

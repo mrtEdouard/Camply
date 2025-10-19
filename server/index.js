@@ -70,7 +70,10 @@ function signToken(payload) {
 }
 
 function authMiddleware(req, res, next) {
-  const token = req.cookies[COOKIE_NAME];
+  // Try Authorization header first (for cross-domain), then cookies (for same-domain)
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : req.cookies[COOKIE_NAME];
+  
   if (!token) return res.status(401).json({ error: 'Unauthenticated' });
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -156,7 +159,10 @@ app.post('/api/auth/register-collectivite', async (req, res) => {
     });
     const token = signToken({ id: user.id, orgId: org.id, role: 'COLLECTIVITE' });
     res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
-    return res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+    return res.json({ 
+      user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId },
+      token: token // Send token in response for cross-domain auth
+    });
   } catch (error) {
     console.error('Registration error:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -175,7 +181,10 @@ app.post('/api/auth/login-collectivite', async (req, res) => {
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
     const token = signToken({ id: user.id, orgId: user.organizationId, role: user.role });
     res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite: 'lax' });
-    res.json({ user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId } });
+    res.json({ 
+      user: { id: user.id, email: user.email, role: user.role, organizationId: user.organizationId },
+      token: token // Send token in response for cross-domain auth
+    });
   } catch (error) {
     console.error('Login error:', error);
     return res.status(500).json({ error: 'Internal server error' });
